@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+
+  <!-- Personalized Welcome Banner -->
+  <div class="dashboard-card mb-4 text-center">
+    <h4>Welcome back, {{ user_name }} 👋</h4>
+    <p>Ready to continue your learning journey today?</p>
+  </div>
+
+  <!-- Dashboard Header with Search + Dark Mode -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <input type="text" id="dashboardSearch" class="form-control w-50" placeholder="Search dashboard...">
+    <button id="darkModeToggle" class="btn btn-outline-primary btn-sm">🌙 Dark Mode</button>
+  </div>
+
+  <div class="row g-4">
+    <!-- Reading List -->
+    <div class="col-md-4">
+      <div class="dashboard-card text-center">
+        <div class="mb-3">
+          <img src="{{ url_for('static', filename='icons/book.svg') }}" alt="Reading List" class="dashboard-icon">
+        </div>
+        <h5 class="card-title">Reading List</h5>
+        <p>You have <span class="counter" data-target="{{ reading_count }}">0</span> items in your reading list.</p>
+        <a href="{{ url_for('reading_list') }}" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="View and manage your reading materials">Open</a>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="col-md-4">
+      <div class="dashboard-card text-center">
+        <div class="mb-3">
+          <img src="{{ url_for('static', filename='icons/chart.svg') }}" alt="Progress" class="dashboard-icon">
+        </div>
+        <h5 class="card-title">Progress</h5>
+        <p>You've logged <span class="counter" data-target="{{ progress_count }}">0</span> progress entries.</p>
+        <canvas id="progressChart" height="120"></canvas>
+        <a href="{{ url_for('progress') }}" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Track your study milestones">Open</a>
+      </div>
+    </div>
+
+    <!-- Forums -->
+    <div class="col-md-4">
+      <div class="dashboard-card text-center">
+        <div class="mb-3">
+          <img src="{{ url_for('static', filename='icons/chat.svg') }}" alt="Forums" class="dashboard-icon">
+        </div>
+        <h5 class="card-title">Forums</h5>
+        <p>Join discussions with peers.</p>
+        <a href="{{ url_for('forums') }}" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Participate in secure discussions">Open</a>
+      </div>
+    </div>
+
+    <!-- Study Groups -->
+    <div class="col-md-4">
+      <div class="dashboard-card text-center">
+        <div class="mb-3">
+          <img src="{{ url_for('static', filename='icons/group.svg') }}" alt="Study Groups" class="dashboard-icon">
+        </div>
+        <h5 class="card-title">Study Groups</h5>
+        <p>There are <span class="counter" data-target="{{ groups_count }}">0</span> study groups available.</p>
+        <a href="{{ url_for('groups') }}" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Browse and join study groups">Open</a>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="col-md-4">
+      <div class="dashboard-card text-center">
+        <div class="mb-3">
+          <img src="{{ url_for('static', filename='icons/bell.svg') }}" alt="Notifications" class="dashboard-icon">
+        </div>
+        <h5 class="card-title">Notifications</h5>
+        <p>You have <span class="counter" data-target="{{ notifications_count }}">0</span> new notifications.</p>
+        <a href="{{ url_for('notifications') }}" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Check your latest updates">Open</a>
+      </div>
+    </div>
+
+    <!-- Collaboration -->
+    <div class="col-md-4">
+      <div class="dashboard-card text-center">
+        <div class="mb-3">
+          <img src="{{ url_for('static', filename='icons/tools.svg') }}" alt="Collaboration" class="dashboard-icon">
+        </div>
+        <h5 class="card-title">Collaboration</h5>
+        <p>Work together on shared tasks and goals.</p>
+        <a href="{{ url_for('collaboration') }}" class="btn btn-primary w-100" data-bs-toggle="tooltip" title="Collaborate on notes and projects">Open</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Feed (Dynamic) -->
+  <div class="dashboard-card mt-4">
+    <h5 class="card-title">Recent Activity</h5>
+    <ul id="activityFeed" class="list-unstyled mb-0">
+      {% for name, action, timestamp in activity_feed %}
+        <li>{{ name }} {{ action }} ({{ timestamp }})</li>
+      {% else %}
+        <li>No recent activity yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<!-- Scripts for counters, search, tooltips, dark mode, chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Animated counters
+  document.querySelectorAll(".counter").forEach(counter => {
+    const updateCount = () => {
+      const target = +counter.getAttribute("data-target");
+      const count = +counter.innerText;
+      const increment = target / 50;
+      if(count < target) {
+        counter.innerText = Math.ceil(count + increment);
+        setTimeout(updateCount, 40);
+      } else {
+        counter.innerText = target;
+      }
+    };
+    updateCount();
+  });
+
+  // Search filter
+  document.getElementById("dashboardSearch").addEventListener("keyup", function() {
+    let query = this.value.toLowerCase();
+    document.querySelectorAll(".dashboard-card").forEach(card => {
+      card.style.display = card.innerText.toLowerCase().includes(query) ? "block" : "none";
+    });
+  });
+
+  // Dark mode toggle
+  document.getElementById("darkModeToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+  });
+
+  // Enable Bootstrap tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
+  // Progress chart demo
+  const ctx = document.getElementById('progressChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Week 1','Week 2','Week 3','Week 4'],
+      datasets: [{
+        label: 'Hours Studied',
+        data: [5, 8, 6, 10],
+        backgroundColor: '#6a1b9a'
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+</script>
+{% endblock %}

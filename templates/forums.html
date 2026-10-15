@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+
+  <!-- Forums Header -->
+  <div class="text-center mb-4">
+    <h3 style="color:#6a1b9a; font-weight:700;">Discussion Forums</h3>
+    <p class="text-muted">Join conversations, share ideas, and collaborate with peers</p>
+  </div>
+
+  <!-- Create New Forum -->
+  <div class="dashboard-card mb-4">
+    <form method="POST" class="d-flex gap-3">
+      <input type="text" name="title" class="form-control" placeholder="Start a new forum topic..." required>
+      <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+  </div>
+
+  <!-- Forum Threads -->
+  <div class="row g-4">
+    {% for id, title in forums %}
+    <div class="col-md-6">
+      <div class="dashboard-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span style="font-size:1.2rem; color:#6a1b9a;">💬</span>
+          <a href="{{ url_for('forum_detail', forum_id=id) }}" class="btn btn-outline-primary btn-sm">Open</a>
+        </div>
+        <h5 class="card-title">{{ title }}</h5>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <div class="dashboard-card text-center">
+        <p class="text-muted">No forums yet. Start one above!</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

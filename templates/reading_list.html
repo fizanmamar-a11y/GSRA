@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4" style="color:#6a1b9a;">📖 Reading List</h3>
+
+  <!-- Flash messages for success/error -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="mb-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Form to add new resource -->
+  <form class="mt-3" method="POST" action="{{ url_for('reading_list') }}">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Title</label>
+      <input type="text" class="form-control" name="title" placeholder="Enter book/article title" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Author</label>
+      <input type="text" class="form-control" name="author" placeholder="Enter author name">
+    </div>
+    <button class="btn btn-primary w-100">➕ Add to List</button>
+  </form>
+
+  <!-- Display reading list -->
+  <h4 class="mt-4">Current Reading List</h4>
+  {% if resources and resources|length > 0 %}
+    <table class="table table-striped mt-3">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for title, author, status in resources %}
+          <tr>
+            <td>{{ title }}</td>
+            <td>{{ author }}</td>
+            <td>{{ status }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info mt-3" role="alert">
+      No items in your reading list yet. Start adding resources!
+    </div>
+  {% endif %}
+
+  <div class="mt-3">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">⬅ Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}
